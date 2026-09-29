@@ -5,6 +5,14 @@
   "type": "module",
   "packageManager": "pnpm@12.6.0",
   "license": "MIT",
+  "homepage": "https://bakaomg.github.io/paimon-flipbook/",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bakaomg/paimon-flipbook.git"
+  },
+  "bugs": {
+    "url": "https://github.com/bakaomg/paimon-flipbook/issues"
+  },
   "description": "Paimon 逐帧动画组件（零依赖 Canvas 2D，可用于原生 / Vue / React）",
   "engines": {
     "node": ">=22.18"
