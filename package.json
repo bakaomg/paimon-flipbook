@@ -1,0 +1,69 @@
+{
+  "name": "@bakaomg/paimon-flipbook",
+  "version": "2.0.0",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@12.6.0",
+  "license": "MIT",
+  "description": "Paimon 逐帧动画组件（零依赖 Canvas 2D，可用于原生 / Vue / React）",
+  "engines": {
+    "node": ">=22.18"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/types/index.d.ts",
+      "default": "./dist/native.js"
+    },
+    "./react": {
+      "types": "./dist/types/react.d.ts",
+      "default": "./dist/react.js"
+    },
+    "./vue": {
+      "types": "./dist/types/vue.d.ts",
+      "default": "./dist/vue.js"
+    },
+    "./all": {
+      "types": "./dist/types/all.d.ts",
+      "default": "./dist/all.js"
+    },
+    "./assets/*": "./assets/*"
+  },
+  "files": [
+    "dist",
+    "assets",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "pnpm build:bundles && pnpm build:types",
+    "build:bundles": "esbuild src/index.ts --bundle --minify --charset=utf8 --format=esm --target=es2020 --legal-comments=none --outfile=dist/native.js && esbuild src/react.ts --bundle --minify --charset=utf8 --format=esm --target=es2020 --legal-comments=none --external:react --outfile=dist/react.js && esbuild src/vue.ts --bundle --minify --charset=utf8 --format=esm --target=es2020 --legal-comments=none --external:vue --outfile=dist/vue.js && esbuild src/all.ts --bundle --minify --charset=utf8 --format=esm --target=es2020 --legal-comments=none --external:react --external:vue --outfile=dist/all.js",
+    "build:types": "tsc -p tsconfig.types.json",
+    "build:demo": "tsc -p tsconfig.demo.json && node scripts/vendor-frameworks.ts",
+    "demo": "pnpm build && pnpm build:demo && node scripts/serve.ts",
+    "site": "pnpm build && pnpm build:demo && node scripts/build-site.ts",
+    "frames": "node scripts/atlas-to-json.ts",
+    "typecheck": "tsc -p tsconfig.json && tsc -p tsconfig.demo.json --noEmit && tsc -p tsconfig.scripts.json",
+    "prepublishOnly": "pnpm build"
+  },
+  "peerDependencies": {
+    "react": ">=17",
+    "vue": ">=3"
+  },
+  "peerDependenciesMeta": {
+    "react": {
+      "optional": true
+    },
+    "vue": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.3",
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
+    "esbuild": "^0.25.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "typescript": "^7.0.2",
+    "vue": "^3.5.13"
+  }
+}

@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="zh-cn">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Paimon 逐帧动画组件 · 原生用法</title>
+    <link rel="stylesheet" href="./demo.css" />
+    <script type="importmap">
+      {
+        "imports": {
+          "@bakaomg/paimon-flipbook": "../dist/native.js"
+        }
+      }
+    </script>
+  </head>
+  <body>
+    <main class="app">
+      <h1>原生用法</h1>
+
+      <section class="block">
+        <h2>① 固定盒子 320×200 fit: "cover"</h2>
+        <div id="hero" class="hero-box"></div>
+      </section>
+
+      <section class="block">
+        <h2>② 自适应宽度（不给尺寸，高度按动画比例）</h2>
+        <div id="fluid" class="fluid-box"></div>
+      </section>
+
+      <section class="block">
+        <h2>③ 固定尺寸 size</h2>
+        <div id="row" class="row"></div>
+      </section>
+
+      <section class="block">
+        <h2>④ 状态驱动 size / playing / speed / loop</h2>
+        <div id="state" class="row"></div>
+        <div class="controls">
+          <label>尺寸 <input id="size" type="range" min="16" max="200" value="104" /><span id="size-label">104px</span></label>
+          <button data-action="toggle">暂停</button>
+          <label>速度 <input id="speed" type="range" min="0.25" max="3" step="0.25" value="1" /><span data-speed-value>1.00×</span></label>
+          <label><input id="loop" type="checkbox" checked />循环</label>
+          <span id="status" class="status"></span>
+        </div>
+      </section>
+
+      <section class="block">
+        <h2>用法示例</h2>
+        <div id="usage"></div>
+      </section>
+
+      <nav class="links">
+        <a href="./react.html">React 版</a>
+        <a href="./vue.html">Vue 3 版</a>
+      </nav>
+    </main>
+    <script type="module" src="../demo-dist/vanilla.js"></script>
+
+    <footer class="footer">
+      <p>图片资源版权归 miHoYo / HoYoverse 所有。</p>
+      <p>Image assets: © miHoYo / HoYoverse. All rights reserved.</p>
+      <p><strong>仅供个人学习研究，不得用于任何商业用途，亦不得再分发。</strong></p>
+      <p><strong>Used here for personal, non-commercial study only. Redistribution is not permitted.</strong></p>
+      <p>Developed by <a href="https://github.com/bakaomg" target="_blank" rel="noopener noreferrer">ohmyga</a>, with assistance from DeepSeek v4.1 Flash.</p>
+    </footer>
+  </body>
+</html>

@@ -1,0 +1,214 @@
+:root {
+  color-scheme: dark;
+}
+* {
+  box-sizing: border-box;
+}
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: radial-gradient(circle at 50% 12%, #1d1d3a 0%, #0a0a16 72%);
+  color: #eaeaff;
+  font: 14px/1.7 -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
+}
+.app {
+  max-width: 700px;
+  margin: 0 auto;
+  padding: 28px 20px 64px;
+}
+h1 {
+  margin: 0 0 16px;
+  font-size: 18px;
+  font-weight: 600;
+}
+h2 {
+  margin: 0 0 10px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #b9b4ff;
+}
+.block {
+  margin: 0 0 24px;
+}
+/* ① 固定盒子：画布正好铺满这个盒子（fit: cover 时可能裁切） */
+.hero-box {
+  width: 320px;
+  height: 200px;
+  outline: 1px dashed #ffffff26;
+  outline-offset: -1px;
+  border-radius: 12px;
+  overflow: hidden;
+}
+/* ② 自适应宽度：容器只给宽度，高度 auto → 组件按动画比例算画布高度 */
+.fluid-box {
+  width: 240px;
+  padding: 6px;
+  outline: 1px dashed #ffffff26;
+  outline-offset: -1px;
+  border-radius: 12px;
+}
+.row {
+  display: flex;
+  gap: 16px;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  min-height: 116px;
+}
+.cell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+.cell span {
+  font-size: 11px;
+  opacity: 0.55;
+}
+.controls {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-top: 14px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: #ffffff0d;
+}
+.controls label {
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+}
+.status {
+  font-size: 12px;
+  opacity: 0.7;
+  font-variant-numeric: tabular-nums;
+}
+button {
+  border: 0;
+  border-radius: 999px;
+  padding: 6px 16px;
+  background: #7a6cff;
+  color: #fff;
+  font: inherit;
+  cursor: pointer;
+}
+button:hover {
+  background: #8d80ff;
+}
+input[type="range"] {
+  width: 140px;
+  accent-color: #7a6cff;
+}
+.links {
+  display: flex;
+  gap: 16px;
+  margin-top: 28px;
+  padding-top: 16px;
+  border-top: 1px solid #ffffff14;
+}
+.links a {
+  color: #ab9dff;
+}
+
+.footer {
+  max-width: 700px;
+  margin: 0 auto;
+  padding: 0 20px 48px;
+  font-size: 12px;
+  line-height: 1.9;
+}
+.footer p {
+  margin: 0;
+  color: #9d97d6;
+}
+.footer strong {
+  color: #dcd8ff;
+  font-weight: 600;
+}
+.footer a {
+  color: #ab9dff;
+}
+
+/* 用法示例：可折叠 + 高亮 + 一键复制 */
+.snippet {
+  position: relative;
+  border: 1px solid #ffffff1f;
+  border-radius: 12px;
+  background: #0d0d1f;
+  overflow: hidden;
+}
+.snippet + .snippet {
+  margin-top: 10px;
+}
+.snippet > summary {
+  padding: 10px 14px;
+  cursor: pointer;
+  font-size: 13px;
+  color: #cfc9ff;
+  list-style: none;
+}
+.snippet > summary::-webkit-details-marker {
+  display: none;
+}
+.snippet > summary::before {
+  content: "▸";
+  display: inline-block;
+  width: 14px;
+  color: #8d80ff;
+  transition: transform 0.15s ease;
+}
+.snippet[open] > summary::before {
+  transform: rotate(90deg);
+}
+.snippet > summary:hover {
+  color: #eaeaff;
+}
+.snippet-copy {
+  position: absolute;
+  top: 8px;
+  right: 10px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  background: #ffffff14;
+  color: #cfc9ff;
+}
+.snippet-copy:hover {
+  background: #7a6cff;
+  color: #fff;
+}
+.snippet pre {
+  margin: 0;
+  padding: 12px 14px;
+  max-height: 320px;
+  overflow: auto;
+  border-top: 1px solid #ffffff14;
+  font: 12px/1.65 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  tab-size: 2;
+}
+.snippet code {
+  white-space: pre;
+}
+.tok-comment {
+  color: #6f7a94;
+  font-style: italic;
+}
+.tok-string {
+  color: #a5e6a5;
+}
+.tok-keyword {
+  color: #ff9ad2;
+}
+.tok-number {
+  color: #ffd479;
+}
+.tok-fn {
+  color: #8ecbff;
+}
+.tok-prop {
+  color: #c9b6ff;
+}
+.tok-tag {
+  color: #ff9ad2;
+}

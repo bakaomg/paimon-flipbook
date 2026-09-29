@@ -1,0 +1,49 @@
+MIT License
+
+Copyright (c) 2026 ohmyga
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+================================================================================
+THIRD-PARTY ASSETS: NOT LICENSED UNDER THE MIT LICENSE
+================================================================================
+
+The MIT License above covers only the software of this project: the
+TypeScript sources under `src/`, the demo pages under `demo/`, the build and
+deployment scripts under `scripts/`, and the project configuration files.
+
+It does NOT cover the image assets under `assets/` — `paimon.png` and
+`paimon.frames.json` — nor any other artwork derived from the game
+"Genshin Impact". Those assets are third-party works:
+
+    Image assets: (c) miHoYo / HoYoverse. All rights reserved.
+
+Copyright in those assets belongs to miHoYo / HoYoverse, not to the authors of
+this project, so no rights in them can be granted here. They are included for
+personal, non-commercial study only and are excluded from every permission
+granted by the MIT License above; in particular they may not be redistributed,
+sublicensed, sold, or used in any commercial product or service.
+
+If you fork, redistribute, or publish this project as a package, either remove
+the `assets/` directory or replace it with artwork you own or are licensed to
+distribute. No code change is required: the component reads its images from
+the URLs it is given (`spriteUrl`, `framesUrl`) or from a caller-supplied frame
+table.
+
+Questions about the original artwork should be directed to miHoYo / HoYoverse.

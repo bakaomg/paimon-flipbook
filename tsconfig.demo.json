@@ -1,0 +1,34 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": [
+      "ES2022",
+      "DOM",
+      "DOM.Iterable"
+    ],
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "types": [
+      "node"
+    ],
+    "strict": true,
+    "verbatimModuleSyntax": true,
+    "rootDir": "demo",
+    "outDir": "demo-dist",
+    "skipLibCheck": true,
+    "paths": {
+      "@bakaomg/paimon-flipbook": [
+        "./dist/types/index.d.ts"
+      ],
+      "@bakaomg/paimon-flipbook/react": [
+        "./dist/types/react.d.ts"
+      ],
+      "@bakaomg/paimon-flipbook/vue": [
+        "./dist/types/vue.d.ts"
+      ]
+    }
+  },
+  "include": [
+    "demo/**/*.ts"
+  ]
+}
