@@ -221,15 +221,16 @@ Vue 组件同理；两者都通过 `ref` 暴露播放器或等价方法集。
 ## 目录结构
 
 ```
-animations/paimon-loading/
+paimon-flipbook/
 ├── assets/          雪碧图 + 帧表
 ├── src/             组件源码（TS，零依赖）
-├── demo/            演示页 HTML/TS/CSS + 框架 shim
-├── scripts/         开发与发布脚本
+├── demo/            演示页 HTML/CSS/TS + 语言切换（默认英文，中文浏览器自动切中文）
+├── scripts/         开发脚本
+│   ├── atlas-to-json.ts      图集 txt → 帧表 JSON
 │   ├── vendor-frameworks.ts  把 React / Vue 运行时拷进 demo/vendor
 │   ├── serve.ts              本地预览服务
-│   ├── build-site.ts         组装 site/ 供部署
-│   └── github-pages.yml      Pages 工作流模板（复制到仓库根 .github/workflows/）
+│   └── build-site.ts         组装 site/ 供部署
+└── .github/workflows/demo-pages.yml  构建 site/ 并发布到 GitHub Pages
 ```
 
 ## 本地预览

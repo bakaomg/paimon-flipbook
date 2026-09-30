@@ -228,15 +228,16 @@ Two rules to follow when implementing external data:
 ## Directory layout
 
 ```
-animations/paimon-loading/
+paimon-flipbook/
 ├── assets/          sprite sheet + frame table
 ├── src/             component source (TS, zero dependencies)
-├── demo/            demo pages HTML/TS/CSS + framework shims
-├── scripts/         development and release scripts
+├── demo/            demo pages HTML/CSS/TS + language switch (English by default, Chinese for zh browsers)
+├── scripts/         development scripts
+│   ├── atlas-to-json.ts      atlas txt → frame table JSON
 │   ├── vendor-frameworks.ts  copies the React / Vue runtimes into demo/vendor
 │   ├── serve.ts              local preview server
-│   ├── build-site.ts         assembles site/ for deployment
-│   └── github-pages.yml      Pages workflow template (copy to the repository root .github/workflows/)
+│   └── build-site.ts         assembles site/ for deployment
+└── .github/workflows/demo-pages.yml  builds site/ and publishes it to GitHub Pages
 ```
 
 ## Local preview
