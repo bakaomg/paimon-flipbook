@@ -1,9 +1,9 @@
 <!doctype html>
-<html lang="zh-cn">
+<html lang="en">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <title>Paimon 逐帧动画组件 · React 用法</title>
+    <title>Paimon flipbook component · React usage</title>
     <link rel="stylesheet" href="./demo.css" />
     <!-- React 18 的 UMD 构建 + import map：无需打包器即可在浏览器里跑组件 -->
     <script src="./vendor/react.umd.js"></script>
@@ -25,11 +25,9 @@
     <script type="module" src="../demo-dist/react.js"></script>
 
     <footer class="footer">
-      <p>图片资源版权归 miHoYo / HoYoverse 所有。</p>
-      <p>Image assets: © miHoYo / HoYoverse. All rights reserved.</p>
-      <p><strong>仅供个人学习研究，不得用于任何商业用途，亦不得再分发。</strong></p>
-      <p><strong>Used here for personal, non-commercial study only. Redistribution is not permitted.</strong></p>
-      <p>Developed by <a href="https://github.com/bakaomg" target="_blank" rel="noopener noreferrer">ohmyga</a>, with assistance from DeepSeek v4.1 Flash.</p>
+      <p data-i18n="footer.assets">Image assets: © miHoYo / HoYoverse. All rights reserved.</p>
+      <p><strong data-i18n="footer.restriction">Used here for personal, non-commercial study only. Redistribution is not permitted.</strong></p>
+      <p data-i18n-html="footer.developed">Developed by <a href="https://github.com/bakaomg" target="_blank" rel="noopener noreferrer">ohmyga</a>, with assistance from DeepSeek v4.1 Flash.</p>
     </footer>
   </body>
 </html>

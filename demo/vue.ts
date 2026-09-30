@@ -1,17 +1,20 @@
 import { createApp, defineComponent, h, ref, type VNode } from "vue";
 import { Paimon } from "@bakaomg/paimon-flipbook/vue";
-import { SNIPPETS, copySnippet, highlight } from "./snippets.js";
+import { LOCALES, frameStatus, getLocale, initPage, localeLabel, onLocaleChange, setLocale, t } from "./i18n.js";
+import { copyLabels, copySnippet, highlight, snippet } from "./snippets.js";
 import type { PaimonExposed } from "@bakaomg/paimon-flipbook/vue";
 
 // 演示页与包内目录结构不同，显式指定资源地址
 const ASSETS = { spriteUrl: "../assets/paimon.png", framesUrl: "../assets/paimon.frames.json" };
+
+initPage("title.vue");
 
 /** 代码块右上角的复制按钮（复制源码原文） */
 const CopyButton = defineComponent({
   name: "SnippetCopyButton",
   props: { code: { type: String, required: true } },
   setup(props) {
-    const label = ref("复制");
+    const state = ref<"idle" | "done" | "failed">("idle");
     return () =>
       h(
         "button",
@@ -19,11 +22,11 @@ const CopyButton = defineComponent({
           class: "snippet-copy",
           type: "button",
           onClick: async () => {
-            label.value = (await copySnippet({ title: "", language: "ts", code: props.code })) ? "已复制" : "复制失败";
-            window.setTimeout(() => (label.value = "复制"), 1500);
+            state.value = (await copySnippet(props.code)) ? "done" : "failed";
+            window.setTimeout(() => (state.value = "idle"), 1500);
           },
         },
-        label.value,
+        copyLabels()[state.value],
       );
   },
 });
@@ -36,6 +39,9 @@ function cell(caption: string, node: VNode): VNode {
 const Demo = defineComponent({
   name: "PaimonDemo",
   setup() {
+    const locale = ref(getLocale());
+    onLocaleChange(() => (locale.value = getLocale()));
+
     const size = ref(104);
     const playing = ref(true);
     const speed = ref(1);
@@ -45,22 +51,41 @@ const Demo = defineComponent({
 
     const inputNumber = (event: Event): number => Number((event.target as HTMLInputElement).value);
 
-    return () =>
-      h("main", { class: "app" }, [
-        h("h1", null, "Vue 3 用法"),
+    return () => {
+      const usage = snippet("vue");
+      return h("main", { class: "app" }, [
+        h(
+          "div",
+          { class: "locale-switch" },
+          LOCALES.map((item) =>
+            h(
+              "button",
+              {
+                key: item,
+                type: "button",
+                "data-locale": item,
+                class: item === locale.value ? "is-active" : "",
+                onClick: () => setLocale(item),
+              },
+              localeLabel(item),
+            ),
+          ),
+        ),
+
+        h("h1", null, t("h1.vue")),
 
         h("section", { class: "block" }, [
-          h("h2", null, '① 固定盒子 320×200 fit: "cover"'),
+          h("h2", null, t("block.hero")),
           h("div", { class: "hero-box" }, [h(Paimon, { width: 320, height: 200, fit: "cover", ...ASSETS })]),
         ]),
 
         h("section", { class: "block" }, [
-          h("h2", null, "② 自适应宽度（不给尺寸，高度按动画比例）"),
+          h("h2", null, t("block.fluid")),
           h("div", { class: "fluid-box" }, [h(Paimon, { ...ASSETS })]),
         ]),
 
         h("section", { class: "block" }, [
-          h("h2", null, "③ 固定尺寸 size"),
+          h("h2", null, t("block.fixed")),
           h("div", { class: "row" }, [
             cell("24px", h(Paimon, { size: 24, ...ASSETS })),
             cell("40px", h(Paimon, { size: 40, ...ASSETS })),
@@ -69,7 +94,7 @@ const Demo = defineComponent({
         ]),
 
         h("section", { class: "block" }, [
-          h("h2", null, "④ 状态驱动 size / playing / speed / loop"),
+          h("h2", null, t("block.state")),
           h("div", { class: "row" }, [
             cell(
               `${size.value}px`,
@@ -79,14 +104,14 @@ const Demo = defineComponent({
                 playing: playing.value,
                 speed: speed.value,
                 loop: loop.value,
-                onFrame: (frame: number, instance) => (status.value = `第 ${frame + 1} / ${instance.frameCount} 帧`),
+                onFrame: (frame: number, instance) => (status.value = frameStatus(frame + 1, instance.frameCount)),
                 ...ASSETS,
               }),
             ),
           ]),
           h("div", { class: "controls" }, [
             h("label", null, [
-              "尺寸",
+              h("span", null, t("control.size")),
               h("input", {
                 type: "range",
                 min: 16,
@@ -96,9 +121,9 @@ const Demo = defineComponent({
               }),
               h("span", null, `${size.value}px`),
             ]),
-            h("button", { onClick: () => (playing.value = !playing.value) }, playing.value ? "暂停" : "播放"),
+            h("button", { onClick: () => (playing.value = !playing.value) }, t(playing.value ? "control.pause" : "control.play")),
             h("label", null, [
-              "速度",
+              h("span", null, t("control.speed")),
               h("input", {
                 type: "range",
                 min: 0.25,
@@ -115,26 +140,27 @@ const Demo = defineComponent({
                 checked: loop.value,
                 onChange: (event: Event) => (loop.value = (event.target as HTMLInputElement).checked),
               }),
-              "循环",
+              h("span", null, t("control.loop")),
             ]),
             h("span", { class: "status" }, status.value),
           ]),
         ]),
 
         h("section", { class: "block" }, [
-          h("h2", null, "用法示例"),
+          h("h2", null, t("block.usage")),
           h("details", { class: "snippet" }, [
-            h("summary", null, SNIPPETS.vue.title),
-            h(CopyButton, { code: SNIPPETS.vue.code }),
-            h("pre", null, [h("code", { class: "language-vue", innerHTML: highlight(SNIPPETS.vue.code) })]),
+            h("summary", null, usage.title),
+            h(CopyButton, { code: usage.code }),
+            h("pre", null, [h("code", { class: `language-${usage.language}`, innerHTML: highlight(usage.code) })]),
           ]),
         ]),
 
         h("nav", { class: "links" }, [
-          h("a", { href: "./index.html" }, "原生版"),
-          h("a", { href: "./react.html" }, "React 版"),
+          h("a", { href: "./index.html" }, t("nav.vanilla")),
+          h("a", { href: "./react.html" }, t("nav.react")),
         ]),
       ]);
+    };
   },
 });
 

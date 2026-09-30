@@ -1,41 +1,44 @@
-# Paimon 逐帧动画组件
+# Paimon flipbook component
+
+[English] | [简体中文](./README_zh.md)
 
 > GI 6th Anniversary Event Page - Paimon Loading Icon
 
-零依赖的逐帧动画（flipbook）播放组件：纯 Canvas 2D + TypeScript，不依赖任何框架与动画库，
-可直接用在原生页面、Vue 3、React 中。尺寸、适配方式、播放状态、速度、循环全部可配置。
+A zero-dependency flipbook player: plain Canvas 2D + TypeScript, with no framework and no animation
+library. It drops straight into a vanilla page, Vue 3 or React. Size, fitting, playback state, speed
+and looping are all configurable.
 
-- 运行时零依赖；构建期只有 `typescript`
-- 数据与渲染分离：帧表是一份 JSON，换素材不需要改代码
-- 一帧一次 `drawImage`，无变换、无抖动；后台自动暂停，尊重 `prefers-reduced-motion`
+- Zero runtime dependencies; `typescript` is the only build-time one
+- Data and rendering are separate: the frame table is a JSON file, swapping the art needs no code change
+- One `drawImage` per frame, no transforms, no jitter; pauses in the background, respects `prefers-reduced-motion`
 
-## 快速开始
+## Quick start
 
 ```bash
 pnpm install
-pnpm build          # 产出 dist/：四份压缩单行 ESM（无 sourcemap）+ 类型声明
+pnpm build          # writes dist/: four minified single-line ESM bundles (no sourcemap) + type declarations
 pnpm demo           # http://127.0.0.1:8899/demo/index.html
-pnpm site           # 组装可部署站点到 site/（GitHub Pages 产物）
-pnpm typecheck      # 组件 + 演示 + 脚本三份 tsconfig 全查
+pnpm site           # assembles the deployable site into site/ (GitHub Pages artifact)
+pnpm typecheck      # checks all three tsconfigs: component + demo + scripts
 ```
 
-构建产物（`dist/`）：
+Build output (`dist/`):
 
-| 文件 | 内容 | 模块说明符 |
+| File | Contents | Module specifier |
 | --- | --- | --- |
-| `native.js` | 核心组件（框架无关） | `@bakaomg/paimon-flipbook` |
-| `react.js` | React 包装（`react` 为 peer） | `@bakaomg/paimon-flipbook/react` |
-| `vue.js` | Vue 3 包装（`vue` 为 peer） | `@bakaomg/paimon-flipbook/vue` |
-| `all.js` | 核心 + 两个包装 | `@bakaomg/paimon-flipbook/all` |
-| `types/**` | `.d.ts` 类型声明（无逐模块 js） | — |
+| `native.js` | Core component (framework-agnostic) | `@bakaomg/paimon-flipbook` |
+| `react.js` | React wrapper (`react` as a peer) | `@bakaomg/paimon-flipbook/react` |
+| `vue.js` | Vue 3 wrapper (`vue` as a peer) | `@bakaomg/paimon-flipbook/vue` |
+| `all.js` | Core + both wrappers | `@bakaomg/paimon-flipbook/all` |
+| `types/**` | `.d.ts` type declarations (no per-module js) | — |
 
-演示页有三份，覆盖三种接入方式：`demo/index.html`（原生）、`demo/react.html`、`demo/vue.html`；
-`demo/`、`scripts/` 都是源码（要能部署就必须入库），只有构建产物被 `.gitignore` 排除，
-见下文「目录结构与各文件去向」。
+There are three demo pages, one per way in: `demo/index.html` (vanilla), `demo/react.html`,
+`demo/vue.html`; `demo/` and `scripts/` are source (they have to be committed for deployment to work),
+only build output is excluded by `.gitignore` — see "Directory layout" below.
 
-## 用法
+## Usage
 
-### 1. 原生
+### 1. Vanilla
 
 ```html
 <canvas id="paimon"></canvas>
@@ -44,23 +47,24 @@ pnpm typecheck      # 组件 + 演示 + 脚本三份 tsconfig 全查
 
   const player = await PaimonPlayer.create({
     canvas: document.querySelector("#paimon"),
-    size: 64,                                  // 只给宽度，高度按动画比例
+    size: 64,                                  // width only, height follows the animation ratio
     spriteUrl: "/static/paimon/paimon.png",
     framesUrl: "/static/paimon/paimon.frames.json",
   });
 
-  player.pause();     // 需要时暂停
+  player.pause();     // pause when needed
   player.play();
 </script>
 ```
 
-容器驱动（尺寸交给 CSS，组件自动跟随）通常更省事：
+Container-driven sizing (hand the size to CSS and let the component follow) is usually less work:
 
 ```js
 const player = await PaimonPlayer.create({ container: document.querySelector("#slot") });
 ```
 
-容器只给宽度、高度为 `auto` 时，组件按动画比例计算画布高度；容器给了确定高度则铺满。
+When the container only has a width and its height is `auto`, the component derives the canvas height
+from the animation ratio; a definite container height is filled instead.
 
 ### 2. React
 
@@ -76,14 +80,14 @@ export function Loading() {
   return (
     <>
       <Paimon ref={playerRef} size={64} playing={playing} />
-      <button onClick={() => setPlaying((v) => !v)}>播放 / 暂停</button>
-      <button onClick={() => playerRef.current?.seek(45)}>跳到第 46 帧</button>
+      <button onClick={() => setPlaying((v) => !v)}>play / pause</button>
+      <button onClick={() => playerRef.current?.seek(45)}>jump to frame 46</button>
     </>
   );
 }
 ```
 
-`size` / `width` / `height` / `fit` / `playing` / `speed` / `loop` / `frameDelayMs` 改动立即生效。
+`size` / `width` / `height` / `fit` / `playing` / `speed` / `loop` / `frameDelayMs` take effect immediately.
 
 ### 3. Vue 3
 
@@ -99,13 +103,14 @@ const player = ref<{ seek: (frame: number) => void } | null>(null);
 <template>
   <Paimon ref="player" :size="size" @ready="(p) => console.log(p.frameCount)" />
   <input type="range" v-model.number="size" min="16" max="200" />
-  <button @click="player?.seek(45)">跳到第 46 帧</button>
+  <button @click="player?.seek(45)">jump to frame 46</button>
 </template>
 ```
 
-组件用渲染函数实现，不需要 SFC 编译器或额外插件；事件为 `ready` / `frame` / `end` / `error`。
+The component is written with render functions, so no SFC compiler or extra plugin is needed; events are
+`ready` / `frame` / `end` / `error`.
 
-### 4. 只要计时与切帧
+### 4. Timing and frame cutting only
 
 ```js
 import { FrameClock, loadSpriteData, loadSpriteSheet } from "@bakaomg/paimon-flipbook";
@@ -121,63 +126,65 @@ function tick(now) {
 }
 ```
 
-## 尺寸与适配
+## Sizing and fitting
 
-| 传入 | 画布 CSS 尺寸 | 适用场景 |
+| Passed | Canvas CSS size | Use when |
 | --- | --- | --- |
-| `size: 64` | 64 × 64/比例 | 固定大小，高度按动画比例推导 |
-| `width` / `height` | 按传入值，另一个按比例补齐 | 需要精确控制 |
-| 都不给 + `container` | 容器内容盒（高度取法见 `containerHeight`） | 响应式布局（推荐） |
-| 都不给 + 只有 `canvas` | 宽度 100%，高度由动画比例决定 | 画布已在 CSS 中定位 |
+| `size: 64` | 64 × 64/ratio | Fixed size, height derived from the animation ratio |
+| `width` / `height` | The values given, the other filled from the ratio | Exact control is needed |
+| Neither + `container` | Container content box (height rule below: `containerHeight`) | Responsive layouts (recommended) |
+| Neither + `canvas` only | 100% width, height from the animation ratio | The canvas is already positioned in CSS |
 
-- `containerHeight`：容器模式下画布高度的取法——`"auto"`（默认）在容器高度由 CSS 决定时铺满、
-  容器高度被画布撑开时改用动画比例；也可显式指定 `"fill"` 或 `"aspect"`。
-- `fit`：`contain`（默认，等比完整显示，可能留白）/ `cover`（铺满，可能裁切）。
-- `dpr`：默认 `min(devicePixelRatio, 3)`，画布分辨率 = CSS 尺寸 × dpr。
-- 画布没有 CSS 尺寸时，组件会把当前布局尺寸固化成内联样式，避免 `width/height` 属性反向影响布局。
+- `containerHeight`: how the canvas height is chosen in container mode — `"auto"` (default) fills when the
+  container height is decided by CSS and falls back to the animation ratio when the canvas would stretch
+  the container; `"fill"` and `"aspect"` can also be set explicitly.
+- `fit`: `contain` (default, fully visible at the animation ratio, may letterbox) / `cover` (fills, may crop).
+- `dpr`: defaults to `min(devicePixelRatio, 3)`; canvas resolution = CSS size × dpr.
+- When the canvas has no CSS size, the component freezes the current layout size into inline styles, so the
+  `width`/`height` attributes cannot feed back into layout.
 
 ## API
 
 ### `PaimonPlayer.create(options) → Promise<PaimonPlayer>`
 
-| 选项 | 类型 | 默认 | 说明 |
+| Option | Type | Default | Notes |
 | --- | --- | --- | --- |
-| `canvas` / `container` | `HTMLCanvasElement` / `HTMLElement` | 二选一 | 给定画布或容器（容器模式自动建画布并跟随尺寸） |
-| `spriteUrl` | `string` | 包内 `assets/paimon.png` | 雪碧图地址 |
-| `framesUrl` | `string` | 包内 `assets/paimon.frames.json` | 帧表地址 |
-| `data` | `SpriteData` | — | 直接传帧表对象，省一次请求 |
-| `size` / `width` / `height` | `number` | — | 见上一节 |
-| `fit` | `"contain" \| "cover"` | `"contain"` | 画布内摆放方式 |
-| `frameDelayMs` | `number` | 帧表的 `55.6` | 每帧时长（≈18fps） |
-| `loop` | `boolean` | `true` | `false` 时播到末帧暂停并触发 `onEnd` |
-| `speed` | `number` | `1` | 时间倍率 |
-| `playing` | `boolean` | `true` | 创建后是否立即播放 |
-| `dpr` | `number` | `min(dpr, 3)` | 设备像素比 |
-| `bake` | `boolean` | `true` | 预烘焙每帧为 `ImageBitmap`；`false` 改为逐帧变换 |
-| `autoResize` | `boolean` | `true` | 跟随容器/画布尺寸变化 |
-| `pauseOnHidden` | `boolean` | `true` | 页面隐藏时暂停，恢复时继续 |
-| `respectReducedMotion` | `boolean` | `true` | 命中 `prefers-reduced-motion` 时静止在代表帧 |
-| `backgroundColor` | `string \| null` | `null` | 画布背景色 |
-| `onFrame` / `onReady` / `onEnd` / `onError` | `function` | — | 帧回调 / 就绪 / 单次播完 / 出错 |
+| `canvas` / `container` | `HTMLCanvasElement` / `HTMLElement` | one of the two | A canvas or a container (container mode creates the canvas and follows its size) |
+| `spriteUrl` | `string` | bundled `assets/paimon.png` | Sprite sheet URL |
+| `framesUrl` | `string` | bundled `assets/paimon.frames.json` | Frame table URL |
+| `data` | `SpriteData` | — | Pass the frame table object directly, saving one request |
+| `size` / `width` / `height` | `number` | — | See the previous section |
+| `fit` | `"contain" \| "cover"` | `"contain"` | How the animation is placed inside the canvas |
+| `frameDelayMs` | `number` | the table's `55.6` | Duration of one frame (≈18fps) |
+| `loop` | `boolean` | `true` | `false` pauses on the last frame and fires `onEnd` |
+| `speed` | `number` | `1` | Time multiplier |
+| `playing` | `boolean` | `true` | Whether to start playing right after creation |
+| `dpr` | `number` | `min(dpr, 3)` | Device pixel ratio |
+| `bake` | `boolean` | `true` | Pre-bake each frame into an `ImageBitmap`; `false` uses per-frame transforms |
+| `autoResize` | `boolean` | `true` | Follow container/canvas size changes |
+| `pauseOnHidden` | `boolean` | `true` | Pause while the page is hidden, resume after |
+| `respectReducedMotion` | `boolean` | `true` | Rest on a representative frame when `prefers-reduced-motion` matches |
+| `backgroundColor` | `string \| null` | `null` | Canvas background colour |
+| `onFrame` / `onReady` / `onEnd` / `onError` | `function` | — | Frame callback / ready / played through once / error |
 
-实例成员：
+Instance members:
 
-| 成员 | 说明 |
+| Member | Notes |
 | --- | --- |
-| `play()` / `pause()` / `toggle()` | 播放控制 |
-| `seek(frame)` | 跳到指定帧并立即重绘（0 起） |
-| `resize({ size?, width?, height?, fit? })` | 调整尺寸与适配方式 |
-| `setSpeed(n)` / `setFrameDelay(ms)` / `setLoop(bool)` | 运行期调速、改帧时长、改循环（保留当前帧） |
-| `render()` | 立即重绘当前帧 |
-| `destroy()` | 停止动画、断开观察器、释放在途请求与 `ImageBitmap` |
-| `frame` / `progress` / `playing` / `ready` / `frameCount` / `aspectRatio` / `size` / `canvas` | 只读状态 |
+| `play()` / `pause()` / `toggle()` | Playback control |
+| `seek(frame)` | Jump to a frame and redraw immediately (0-based) |
+| `resize({ size?, width?, height?, fit? })` | Adjust size and fitting |
+| `setSpeed(n)` / `setFrameDelay(ms)` / `setLoop(bool)` | Change speed, frame duration or looping at runtime (keeps the current frame) |
+| `render()` | Redraw the current frame immediately |
+| `destroy()` | Stop the animation, disconnect observers, release in-flight requests and `ImageBitmap`s |
+| `frame` / `progress` / `playing` / `ready` / `frameCount` / `aspectRatio` / `size` / `canvas` | Read-only state |
 
-React 组件的 props 与上表一致（去掉 `canvas`/`container`，增加 `className`/`style`/`title`），
-Vue 组件同理；两者都通过 `ref` 暴露播放器或等价方法集。
+React component props match the table above (minus `canvas`/`container`, plus `className`/`style`/`title`),
+and the Vue component likewise; both expose the player, or an equivalent set of methods, through `ref`.
 
-## 数据格式
+## Data format
 
-帧表 JSON 就是组件与素材之间的契约：
+The frame table JSON is the contract between the component and the art:
 
 ```json
 {
@@ -199,63 +206,72 @@ Vue 组件同理；两者都通过 `ref` 暴露播放器或等价方法集。
 }
 ```
 
-| 字段 | 含义 |
+| Field | Meaning |
 | --- | --- |
-| `frameBox` | 所有帧共用的帧画布尺寸，决定动画宽高比与默认尺寸 |
-| `frameDelayMs` | 每帧时长（毫秒） |
-| `frames[].source` | 帧在雪碧图里的存储矩形（`drawImage` 的 sx/sy/sw/sh） |
-| `frames[].size` | 旋转还原后的逻辑尺寸 |
-| `frames[].rotated` | 存储区是否旋转了 90° |
-| `frames[].place` | 内容在帧画布里的左上角落点（y 向下，已按底边基准换算） |
-| `frames[].box` | 该帧的帧画布尺寸 |
+| `frameBox` | Frame canvas size shared by every frame; decides the aspect ratio and default size |
+| `frameDelayMs` | Duration of one frame (milliseconds) |
+| `frames[].source` | Rectangle of the frame inside the sprite sheet (`drawImage`'s sx/sy/sw/sh) |
+| `frames[].size` | Logical size after undoing the rotation |
+| `frames[].rotated` | Whether the stored region is rotated 90° |
+| `frames[].place` | Top-left placement of the content inside the frame canvas (y down, converted from a bottom baseline) |
+| `frames[].box` | Frame canvas size of that frame |
 
-约定两条，实现外部数据时务必遵守：
+Two rules to follow when implementing external data:
 
-1. 所有帧必须对齐到同一个帧画布尺寸，否则播放时会抖动；
-2. 裁剪内容的落点用 `place` 表达，已换算成「距画布顶部」的距离——图集原始偏移以底边为基准
-   （y 向上空间里内容下边 = `-H/2 + offsetY`），换算公式为 `place.y = 画布高 - offsetY - 内容高`。
-   若直接按「距顶部」摆放，逐帧内容底边会大幅跳动。
+1. Every frame must align to the same frame canvas size, otherwise playback jitters;
+2. Cropped content placement is expressed with `place`, already converted to a distance from the top of the
+   canvas — atlas offsets are bottom-based (in the y-up space the content's bottom edge is
+   `-H/2 + offsetY`), and the conversion is `place.y = canvas height - offsetY - content height`.
+   Placing by "distance from the top" directly makes the bottom edge of the content jump badly from frame
+   to frame.
 
-## 目录结构
+## Directory layout
 
 ```
 animations/paimon-loading/
-├── assets/          雪碧图 + 帧表
-├── src/             组件源码（TS，零依赖）
-├── demo/            演示页 HTML/TS/CSS + 框架 shim
-├── scripts/         开发与发布脚本
-│   ├── vendor-frameworks.ts  把 React / Vue 运行时拷进 demo/vendor
-│   ├── serve.ts              本地预览服务
-│   ├── build-site.ts         组装 site/ 供部署
-│   └── github-pages.yml      Pages 工作流模板（复制到仓库根 .github/workflows/）
+├── assets/          sprite sheet + frame table
+├── src/             component source (TS, zero dependencies)
+├── demo/            demo pages HTML/TS/CSS + framework shims
+├── scripts/         development and release scripts
+│   ├── vendor-frameworks.ts  copies the React / Vue runtimes into demo/vendor
+│   ├── serve.ts              local preview server
+│   ├── build-site.ts         assembles site/ for deployment
+│   └── github-pages.yml      Pages workflow template (copy to the repository root .github/workflows/)
 ```
 
-## 本地预览
+## Local preview
 
 ```bash
 pnpm install
-pnpm demo        # 构建并起服务 → http://127.0.0.1:8899/demo/index.html
+pnpm demo        # builds and serves → http://127.0.0.1:8899/demo/index.html
 ```
 
-演示页全部使用相对路径（`../dist/`、`../assets/`、`./vendor/`、`../demo-dist/`），
-所以本地服务、站点根目录、任意子路径托管三种情况下都能直接跑。
+The demo pages use relative paths only (`../dist/`, `../assets/`, `./vendor/`, `../demo-dist/`), so they
+run as-is from a local server, from a site root, or from any sub-path host.
 
-## 实现要点
+## Implementation notes
 
-- **一帧一次 `drawImage`**：默认把每帧「旋转还原 + 对齐到帧画布」预烘焙为 `ImageBitmap`；
-  显存紧张时用 `bake: false` 改为逐帧矩阵变换。
-- **累加器计时**：按累计毫秒计算帧号，不受 `requestAnimationFrame` 抖动影响；单次推进上限 250ms。
-- **帧号不变不重绘**：18fps 的动画在 60Hz 屏幕上只绘制必要帧，`onFrame` 也只在帧号变化时触发。
-- **自动让路**：`pause()` 立即停止调度；页面隐藏时暂停；`prefers-reduced-motion` 下只渲染代表帧。
-- **释放干净**：`destroy()` 中断在途 `fetch`、关闭所有 `ImageBitmap`、断开 `ResizeObserver`。
-- **构建产出**：esbuild 打包压缩（单行、无 sourcemap、中文字符不转义），`tsc` 只产出 `.d.ts`；
-  React/Vue 作为 peer 依赖不被打进产物。
+- **One `drawImage` per frame**: by default every frame is pre-baked ("rotation undone + aligned to the
+  frame canvas") into an `ImageBitmap`; under video-memory pressure use `bake: false` for per-frame matrix
+  transforms.
+- **Accumulator timing**: the frame number comes from accumulated milliseconds, so
+  `requestAnimationFrame` jitter cannot affect it; a single step is capped at 250ms.
+- **No redraw while the frame number is unchanged**: an 18fps animation draws only the frames it needs on a
+  60Hz display, and `onFrame` fires only when the frame number changes.
+- **Yields by itself**: `pause()` stops scheduling immediately; a hidden page pauses; under
+  `prefers-reduced-motion` it only renders a representative frame.
+- **Clean teardown**: `destroy()` aborts in-flight `fetch` calls, closes every `ImageBitmap` and disconnects
+  the `ResizeObserver`.
+- **Build output**: esbuild bundles and minifies (single line, no sourcemap, Chinese characters not
+  escaped), `tsc` emits `.d.ts` only; React/Vue stay peer dependencies and are not bundled into the output.
 
-## 免责声明
+## Disclaimer
 
-- 本组件仅供个人学习与技术研究使用，不得用于任何商业用途。
-- `assets/` 下的图像素材版权归 miHoYo / HoYoverse 所有（Image assets: © miHoYo / HoYoverse.
-  All rights reserved.），不随本项目的代码授权一并授权；请勿再分发或用于商业产品。
-  如权利人认为不妥，请立即停止使用并删除相关素材。
-- `src/` 下的代码为独立实现；使用本组件产生的一切后果由使用者自行承担。
-- 本项目由 [ohmyga](https://github.com/bakaomg) 开发，使用 DeepSeek v4.1 Flash 辅助。
+- This component is for personal study and technical research only; it must not be used commercially.
+- The image assets under `assets/` are copyright miHoYo / HoYoverse (Image assets: © miHoYo / HoYoverse.
+  All rights reserved.) and are not covered by this project's code license; do not redistribute them or use
+  them in a commercial product. If a rights holder objects, stop using them and delete the assets
+  immediately.
+- The code under `src/` is an independent implementation; any consequence of using this component is the
+  user's own responsibility.
+- Developed by [ohmyga](https://github.com/bakaomg), with assistance from DeepSeek v4.1 Flash.

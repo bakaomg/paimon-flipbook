@@ -1,8 +1,12 @@
 import { PaimonPlayer } from "@bakaomg/paimon-flipbook";
-import { SNIPPETS, createSnippetPanel } from "./snippets.js";
+import { createLocaleSwitch, frameStatus, initPage, onLocaleChange, t } from "./i18n.js";
+import { createSnippetPanel } from "./snippets.js";
 
 // 演示页与包内目录结构不同，显式指定资源地址
 const ASSETS = { spriteUrl: "../assets/paimon.png", framesUrl: "../assets/paimon.frames.json" };
+
+initPage("title.vanilla");
+document.querySelector(".app")?.prepend(createLocaleSwitch());
 
 /** 带说明文字的格子，和 React/Vue 版保持同一套 DOM 结构 */
 function cell(caption: string): HTMLElement {
@@ -41,11 +45,13 @@ const fixed = await Promise.all(
 // ④ 状态驱动：滑块改尺寸，按钮改播放/速度/循环
 const stateCell = cell("104px");
 document.querySelector("#state")!.append(stateCell);
+let latestFrame = { frame: 0, total: 0 };
 const drivenPlayer = await PaimonPlayer.create({
   container: stateCell,
   size: 104,
   onFrame: (frame, player) => {
-    if (status) status.textContent = `第 ${frame + 1} / ${player.frameCount} 帧`;
+    latestFrame = { frame: frame + 1, total: player.frameCount };
+    if (status) status.textContent = frameStatus(latestFrame.frame, latestFrame.total);
   },
   ...ASSETS,
 });
@@ -60,14 +66,18 @@ document.querySelector<HTMLInputElement>("#size")?.addEventListener("input", (ev
 });
 
 const toggleButton = document.querySelector<HTMLElement>('[data-action="toggle"]');
+const syncToggleLabel = () => {
+  if (toggleButton) toggleButton.textContent = t(drivenPlayer.playing ? "control.pause" : "control.play");
+};
 toggleButton?.addEventListener("click", () => {
   const playing = !drivenPlayer.playing;
   for (const player of driven) {
     if (playing) player.play();
     else player.pause();
   }
-  toggleButton.textContent = playing ? "暂停" : "播放";
+  syncToggleLabel();
 });
+syncToggleLabel();
 
 document.querySelector<HTMLInputElement>("#speed")?.addEventListener("input", (event) => {
   const speed = Number((event.target as HTMLInputElement).value);
@@ -83,6 +93,13 @@ document.querySelector<HTMLInputElement>("#loop")?.addEventListener("change", (e
 });
 
 // ⑤ 用法示例：折叠面板 + 高亮 + 一键复制
-document.querySelector("#usage")?.append(createSnippetPanel(SNIPPETS.vanilla));
+const panel = createSnippetPanel("vanilla");
+document.querySelector("#usage")!.append(panel.element);
+
+onLocaleChange(() => {
+  panel.update("vanilla");
+  syncToggleLabel();
+  if (status) status.textContent = frameStatus(latestFrame.frame, latestFrame.total);
+});
 
 Object.assign(globalThis, { hero, fluid, fixed, drivenPlayer });

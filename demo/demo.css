@@ -212,3 +212,25 @@ input[type="range"] {
 .tok-tag {
   color: #ff9ad2;
 }
+
+/* 语言切换：默认英文，浏览器语言是中文时自动切到中文，也可手动点 */
+.locale-switch {
+  display: flex;
+  gap: 6px;
+  justify-content: flex-end;
+  margin: 0 0 10px;
+}
+.locale-switch button {
+  padding: 3px 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  background: #ffffff14;
+  color: #b9b4ff;
+}
+.locale-switch button:hover {
+  background: #ffffff24;
+}
+.locale-switch button.is-active {
+  background: #7a6cff;
+  color: #fff;
+}

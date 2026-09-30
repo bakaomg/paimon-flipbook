@@ -1,12 +1,32 @@
-import { createElement, useRef, useState } from "react";
+import { createElement, useEffect, useRef, useState } from "react";
 import type { ChangeEvent, ReactNode } from "react";
 import { createRoot } from "react-dom/client";
 import { Paimon } from "@bakaomg/paimon-flipbook/react";
-import { SNIPPETS, copySnippet, highlight } from "./snippets.js";
+import {
+  LOCALES,
+  getLocale,
+  initPage,
+  localeLabel,
+  onLocaleChange,
+  setLocale,
+  t,
+  frameStatus,
+  type Locale,
+} from "./i18n.js";
+import { copyLabels, copySnippet, highlight, snippet } from "./snippets.js";
 import type { PaimonPlayer } from "@bakaomg/paimon-flipbook/react";
 
 // 演示页与包内目录结构不同，显式指定资源地址
 const ASSETS = { spriteUrl: "../assets/paimon.png", framesUrl: "../assets/paimon.frames.json" };
+
+initPage("title.react");
+
+/** 语言变化时触发重渲染 */
+function useLocale(): Locale {
+  const [locale, setLocaleState] = useState(getLocale());
+  useEffect(() => onLocaleChange(() => setLocaleState(getLocale())), []);
+  return locale;
+}
 
 /** 带说明文字的格子，和原生版保持同一套 DOM 结构 */
 function cell(caption: string, node: ReactNode): ReactNode {
@@ -15,40 +35,60 @@ function cell(caption: string, node: ReactNode): ReactNode {
 
 /** 代码块右上角的复制按钮（复制源码原文） */
 function CopyButton({ code }: { code: string }): ReactNode {
-  const [label, setLabel] = useState("复制");
+  const [state, setState] = useState<"idle" | "done" | "failed">("idle");
   return createElement(
     "button",
     {
       className: "snippet-copy",
       type: "button",
       onClick: async () => {
-        setLabel((await copySnippet({ title: "", language: "ts", code })) ? "已复制" : "复制失败");
-        window.setTimeout(() => setLabel("复制"), 1500);
+        setState((await copySnippet(code)) ? "done" : "failed");
+        window.setTimeout(() => setState("idle"), 1500);
       },
     },
-    label,
+    copyLabels()[state],
   );
 }
 
 function Demo() {
+  const locale = useLocale();
   const [size, setSize] = useState(104);
   const [playing, setPlaying] = useState(true);
   const [speed, setSpeed] = useState(1);
   const [loop, setLoop] = useState(true);
   const [status, setStatus] = useState("");
   const player = useRef<PaimonPlayer | null>(null);
+  const usage = snippet("react");
 
   const number = (event: ChangeEvent<HTMLInputElement>): number => Number(event.target.value);
 
   return createElement(
     "main",
     { className: "app" },
-    createElement("h1", null, "React 用法"),
+    createElement(
+      "div",
+      { className: "locale-switch" },
+      LOCALES.map((item) =>
+        createElement(
+          "button",
+          {
+            key: item,
+            type: "button",
+            "data-locale": item,
+            className: item === locale ? "is-active" : "",
+            onClick: () => setLocale(item),
+          },
+          localeLabel(item),
+        ),
+      ),
+    ),
+
+    createElement("h1", null, t("h1.react")),
 
     createElement(
       "section",
       { className: "block" },
-      createElement("h2", null, '① 固定盒子 320×200 fit: "cover"'),
+      createElement("h2", null, t("block.hero")),
       createElement(
         "div",
         { className: "hero-box" },
@@ -59,14 +99,14 @@ function Demo() {
     createElement(
       "section",
       { className: "block" },
-      createElement("h2", null, "② 自适应宽度（不给尺寸，高度按动画比例）"),
+      createElement("h2", null, t("block.fluid")),
       createElement("div", { className: "fluid-box" }, createElement(Paimon, { ...ASSETS })),
     ),
 
     createElement(
       "section",
       { className: "block" },
-      createElement("h2", null, "③ 固定尺寸 size"),
+      createElement("h2", null, t("block.fixed")),
       createElement(
         "div",
         { className: "row" },
@@ -79,7 +119,7 @@ function Demo() {
     createElement(
       "section",
       { className: "block" },
-      createElement("h2", null, "④ 状态驱动 size / playing / speed / loop"),
+      createElement("h2", null, t("block.state")),
       createElement(
         "div",
         { className: "row" },
@@ -91,7 +131,7 @@ function Demo() {
             playing,
             speed,
             loop,
-            onFrame: (frame, instance) => setStatus(`第 ${frame + 1} / ${instance.frameCount} 帧`),
+            onFrame: (frame, instance) => setStatus(frameStatus(frame + 1, instance.frameCount)),
             ...ASSETS,
           }),
         ),
@@ -102,15 +142,15 @@ function Demo() {
         createElement(
           "label",
           null,
-          "尺寸",
+          createElement("span", null, t("control.size")),
           createElement("input", { type: "range", min: 16, max: 200, value: size, onChange: (e: ChangeEvent<HTMLInputElement>) => setSize(number(e)) }),
           createElement("span", null, `${size}px`),
         ),
-        createElement("button", { onClick: () => setPlaying((value) => !value) }, playing ? "暂停" : "播放"),
+        createElement("button", { onClick: () => setPlaying((value) => !value) }, t(playing ? "control.pause" : "control.play")),
         createElement(
           "label",
           null,
-          "速度",
+          createElement("span", null, t("control.speed")),
           createElement("input", { type: "range", min: 0.25, max: 3, step: 0.25, value: speed, onChange: (e: ChangeEvent<HTMLInputElement>) => setSpeed(number(e)) }),
           createElement("span", null, `${speed.toFixed(2)}×`),
         ),
@@ -118,7 +158,7 @@ function Demo() {
           "label",
           null,
           createElement("input", { type: "checkbox", checked: loop, onChange: (e: ChangeEvent<HTMLInputElement>) => setLoop(e.target.checked) }),
-          "循环",
+          createElement("span", null, t("control.loop")),
         ),
         createElement("span", { className: "status" }, status),
       ),
@@ -127,18 +167,18 @@ function Demo() {
     createElement(
       "section",
       { className: "block" },
-      createElement("h2", null, "用法示例"),
+      createElement("h2", null, t("block.usage")),
       createElement(
         "details",
         { className: "snippet" },
-        createElement("summary", null, SNIPPETS.react.title),
-        createElement(CopyButton, { code: SNIPPETS.react.code }),
+        createElement("summary", null, usage.title),
+        createElement(CopyButton, { code: usage.code }),
         createElement(
           "pre",
           null,
           createElement("code", {
-            className: "language-tsx",
-            dangerouslySetInnerHTML: { __html: highlight(SNIPPETS.react.code) },
+            className: `language-${usage.language}`,
+            dangerouslySetInnerHTML: { __html: highlight(usage.code) },
           }),
         ),
       ),
@@ -147,8 +187,8 @@ function Demo() {
     createElement(
       "nav",
       { className: "links" },
-      createElement("a", { href: "./index.html" }, "原生版"),
-      createElement("a", { href: "./vue.html" }, "Vue 3 版"),
+      createElement("a", { href: "./index.html" }, t("nav.vanilla")),
+      createElement("a", { href: "./vue.html" }, t("nav.vue")),
     ),
   );
 }
